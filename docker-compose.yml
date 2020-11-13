@@ -1,0 +1,23 @@
+#docker-compose.yml
+version: "3.8"
+services:
+
+  service-super-market:
+    build: ./service-super-market
+    ports:
+      - 9090:${SERVER_PORT}
+    environment:
+      - SERVER_PORT=${SERVER_PORT}
+      - MONGO_HOST=db
+      - MONGO_PORT=27017
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+    depends_on:
+      - db
+
+  db:
+    image: mongo:4.4.1
+    restart: always
+    ports:
+      - ${MONGO_PORT}:27017
+    volumes:
+      - ${MONGO_VOLUME_PATH}:/data/db

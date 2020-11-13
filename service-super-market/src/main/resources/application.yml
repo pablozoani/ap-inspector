@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: service-super-market
+  output:
+    ansi:
+      enabled: always
+  main:
+    banner-mode: off
+  profiles:
+    active:
+      - controllers # controllers | handlers
+      - localhost-OS # localhost-OS | docker
+logging:
+  level:
+    root: INFO
+---
+spring:
+  profiles: docker
+  data:
+    mongodb:
+      host: ${MONGO_HOST}
+      port: ${MONGO_PORT}
+      database: ${MONGO_DB_NAME}
+server:
+  port: ${SERVER_PORT}
+---
+spring:
+  profiles: localhost-OS
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: super-market
+server:
+  port: 8080

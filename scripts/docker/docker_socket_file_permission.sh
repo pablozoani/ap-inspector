@@ -1,0 +1,3 @@
+#!/bin/bash
+# to run docker without sudo...
+sudo chmod a+u /var/run/docker.sock
