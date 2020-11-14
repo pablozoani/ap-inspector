@@ -61,6 +61,15 @@ public class Vendor {
         return this.lastName.hashCode() + this.firstName.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return "Vendor{" +
+            "id='" + id + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            '}';
+    }
+
     public static Builder builder() {
         return new Builder();
     }

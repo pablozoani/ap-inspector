@@ -9,14 +9,14 @@ public class Category {
     @Id
     private String id;
 
-    private String description;
+    private String name;
 
     public Category() {
     }
 
-    public Category(String id, String description) {
+    public Category(String id, String name) {
         this.id = id;
-        this.description = description;
+        this.name = name;
     }
 
     public String getId() {
@@ -27,33 +27,35 @@ public class Category {
         this.id = id;
     }
 
-    public String getDescription() {
-        return this.description;
+    public String getName() {
+        return this.name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
+        if (this == obj) return true;
         if (obj == null || this.getClass() != obj.getClass()) {
             return false;
         }
         Category cat = (Category) obj;
-        return this.description.equals(cat.description);
+        return this.name.equals(cat.name);
     }
 
     @Override
     public int hashCode() {
-        return description.hashCode();
+        return name.hashCode();
     }
 
     @Override
     public String toString() {
-        return "Category: {\n id: " + id + ",\n description: " + description + "\n}";
+        return "Category{" +
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            '}';
     }
 
     public static Builder builder() {
@@ -71,7 +73,7 @@ public class Category {
 
         public Category build() {
             Category output = new Category();
-            output.description = description;
+            output.name = description;
             return output;
         }
     }
