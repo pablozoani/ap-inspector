@@ -5,4 +5,4 @@ jobs:
       - image: circleci/openjdk:11
     steps:
       - checkout
-      - run: ls -al
+      - run: mvn test
