@@ -35,7 +35,6 @@ class InspectorTest {
 
     @Test
     void example() {
-        assertTrue(false);
         final Person p = new Person();
         inspector = new Inspector<>(new RuntimeException()) {
             @Override
