@@ -13,6 +13,7 @@ public class InspectorConfig {
 
     @Bean
     public Inspector<Vendor> makeVendorInspector() {
+        // TODO
         return new Inspector<Vendor>(
             new ResponseStatusException(BAD_REQUEST, "Invalid Payload")
         ) {

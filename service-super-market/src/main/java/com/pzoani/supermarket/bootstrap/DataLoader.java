@@ -45,10 +45,10 @@ public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
             System.out.println("Loading data.");
             categoryRepository.deleteAll().block();
             Category[] categories = new Category[]{
-                Category.builder().description("Best Offer").build(),
-                Category.builder().description("High Quality").build(),
-                Category.builder().description("Limited").build(),
-                Category.builder().description("Best Seller").build()
+                Category.builder().name("Best Offer").build(),
+                Category.builder().name("High Quality").build(),
+                Category.builder().name("Limited").build(),
+                Category.builder().name("Best Seller").build()
             };
             for (int i = 0; i < categories.length; i++) {
                 Category cat = categories[i];

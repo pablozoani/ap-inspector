@@ -1,6 +1,7 @@
 package com.pzoani.supermarket.controller;
 
 import com.pzoani.supermarket.domain.Category;
+import com.pzoani.supermarket.paths.Endpoints;
 import com.pzoani.supermarket.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,8 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 class CategoryControllerTest {
 
@@ -38,8 +41,8 @@ class CategoryControllerTest {
     @Test
     void findAll() {
         Category[] cs = {
-            Category.builder().description("IceCream").build(),
-            Category.builder().description("Food").build()
+            Category.builder().name("IceCream").build(),
+            Category.builder().name("Food").build()
         };
         // when
         BDDMockito.given(categoryRepository.findAll())
@@ -58,7 +61,7 @@ class CategoryControllerTest {
     void findById() {
         // given
         Category c = Category.builder()
-            .description("IceCream")
+            .name("IceCream")
             .build();
         // when
         BDDMockito.given(categoryRepository.findById(anyString()))
@@ -75,23 +78,26 @@ class CategoryControllerTest {
     @Test
     void save() {
         // given
-        Mono<Category> m = Mono.just(Category.builder().description("Food").build());
+        Category category = Category.builder().name("Food").build();
         // when
-        BDDMockito.when(categoryRepository.saveAll(any(Publisher.class)))
-            .thenReturn(Flux.just(new Category()));
+        BDDMockito.given(categoryRepository.save(any(Category.class)))
+            .willReturn(Mono.just(category));
         // then
         webTestClient.post()
-            .uri("/api/v1/categories")
-            .body(m, Category.class)
+            .uri(Endpoints.CATEGORIES_BASE_URL)
+            .body(Mono.just(category), Category.class)
             .exchange()
             .expectStatus().isCreated()
-            .expectHeader().contentType("application/json");
+            .expectHeader().contentType("application/json")
+            .expectBody(Category.class)
+            .isEqualTo(category);
+        verify(categoryRepository, times(1)).save(any(Category.class));
     }
 
     @Test
     void update() {
         // given
-        Category c = Category.builder().description("Food").build();
+        Category c = Category.builder().name("Food").build();
         String id = UUID.randomUUID().toString();
         // when
         BDDMockito.when(categoryRepository.saveAll(any(Mono.class)))
@@ -105,5 +111,28 @@ class CategoryControllerTest {
             .returnResult(Category.class)
             .getResponseBody()
         ).assertNext(category -> category.getId().equals(id));
+    }
+
+    @Test
+    void deleteById() {
+        String theId = "The ID";
+        when(categoryRepository.existsById(theId))
+            .thenReturn(Mono.just(true));
+        when(categoryRepository.deleteById(any(String.class)))
+            .thenReturn(Mono.empty());
+        webTestClient
+            .delete()
+            .uri(Endpoints.CATEGORIES_BASE_URL + "/" + theId)
+            .exchange()
+            .expectStatus().isOk();
+        verify(categoryRepository, times(1)).existsById(theId);
+        verify(categoryRepository, times(1)).deleteById(theId);
+        when(categoryRepository.existsById(theId))
+            .thenReturn(Mono.just(false));
+        webTestClient
+            .delete()
+            .uri(Endpoints.CATEGORIES_BASE_URL + "/" + theId)
+            .exchange()
+            .expectStatus().isNotFound();
     }
 }

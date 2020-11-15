@@ -2,10 +2,10 @@ package com.pzoani.supermarket.controller;
 
 import com.pzoani.inspector.Inspector;
 import com.pzoani.supermarket.domain.Vendor;
+import com.pzoani.supermarket.paths.Endpoints;
 import com.pzoani.supermarket.repository.VendorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -17,6 +17,11 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.when;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 class VendorControllerTest {
 
@@ -53,12 +58,11 @@ class VendorControllerTest {
                 .build()
         };
         // when
-        BDDMockito
-            .given(vendorRepository.findAll())
+        given(vendorRepository.findAll())
             .willReturn(Flux.just(vs));
         // then
         webTestClient.get()
-            .uri("/api/v1/vendors")
+            .uri(Endpoints.VENDORS_BASE_URL)
             .exchange()
             .expectBodyList(Vendor.class)
             .hasSize(2)
@@ -73,11 +77,11 @@ class VendorControllerTest {
             .lastName("Doe")
             .build();
         // when
-        BDDMockito.given(vendorRepository.findById(anyString()))
+        given(vendorRepository.findById(anyString()))
             .willReturn(Mono.just(v));
         // then
         webTestClient.get()
-            .uri("/api/v1/vendors/any")
+            .uri(Endpoints.VENDORS_BASE_URL + "/any")
             .exchange()
             .expectBody(Vendor.class)
             .isEqualTo(v);
@@ -91,15 +95,17 @@ class VendorControllerTest {
             .lastName("Doe")
             .build();
         // when
-        BDDMockito.when(vendorRepository.saveAll(any(Mono.class)))
-            .thenReturn(Flux.just(v));
+        when(vendorRepository.save(any(Vendor.class)))
+            .thenReturn(Mono.just(v));
         // then
         webTestClient.post()
-            .uri("/api/v1/vendors")
+            .uri(Endpoints.VENDORS_BASE_URL)
             .body(Mono.just(v), Vendor.class)
             .exchange()
             .expectStatus().isCreated()
-            .expectHeader().contentType("application/json");
+            .expectHeader().contentType(APPLICATION_JSON_VALUE)
+            .expectBody(Vendor.class).isEqualTo(v);
+        verify(vendorRepository, times(1)).save(any(Vendor.class));
     }
 
     @Test
@@ -111,18 +117,41 @@ class VendorControllerTest {
             .build();
         String id = UUID.randomUUID().toString();
         // when
-        BDDMockito.when(vendorRepository.saveAll(any(Mono.class)))
+        when(vendorRepository.saveAll(any(Mono.class)))
             .thenReturn(Flux.just(v));
         // then
         StepVerifier.create(
             webTestClient.put()
-                .uri("/api/v1/vendors/" + id)
+                .uri(Endpoints.VENDORS_BASE_URL + "/" + id)
                 .body(Mono.just(v), Vendor.class)
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType("application/json")
+                .expectHeader().contentType(APPLICATION_JSON_VALUE)
                 .returnResult(Vendor.class)
                 .getResponseBody()
         ).assertNext(vendor -> vendor.getId().equals(id));
+    }
+
+    @Test
+    void deleteById() {
+        String theId = "The ID";
+        when(vendorRepository.existsById(theId))
+            .thenReturn(Mono.just(true));
+        when(vendorRepository.deleteById(any(String.class)))
+            .thenReturn(Mono.empty());
+        webTestClient
+            .delete()
+            .uri(Endpoints.VENDORS_BASE_URL + "/" + theId)
+            .exchange()
+            .expectStatus().isOk();
+        verify(vendorRepository, times(1)).existsById(theId);
+        verify(vendorRepository, times(1)).deleteById(theId);
+        when(vendorRepository.existsById(theId))
+            .thenReturn(Mono.just(false));
+        webTestClient
+            .delete()
+            .uri(Endpoints.VENDORS_BASE_URL + "/" + theId)
+            .exchange()
+            .expectStatus().isNotFound();
     }
 }

@@ -75,10 +75,14 @@ public class Vendor {
     }
 
     public static class Builder {
+        private String id;
+        private String firstName;
+        private String lastName;
 
-        private String firstName = null;
-
-        private String lastName = null;
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder firstName(String firstName) {
             this.firstName = firstName;
@@ -92,6 +96,7 @@ public class Vendor {
 
         public Vendor build() {
             Vendor output = new Vendor();
+            output.id = this.id;
             output.firstName = this.firstName;
             output.lastName = this.lastName;
             return output;

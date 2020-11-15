@@ -63,17 +63,23 @@ public class Category {
     }
 
     public static class Builder {
+        private String id;
+        private String name;
 
-        private String description = null;
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
 
-        public Builder description(String description) {
-            this.description = description;
+        public Builder name(String description) {
+            this.name = description;
             return this;
         }
 
         public Category build() {
             Category output = new Category();
-            output.name = description;
+            output.id = this.id;
+            output.name = this.name;
             return output;
         }
     }

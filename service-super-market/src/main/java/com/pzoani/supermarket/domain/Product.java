@@ -112,16 +112,15 @@ public class Product {
     }
 
     public static class Builder {
-
+        private String id;
         private String name;
-
         private BigDecimal price;
-
         private Category category;
-
         private Vendor vendor;
 
-        public Builder() {
+        public Builder id(String id) {
+            this.id = id;
+            return this;
         }
 
         public Builder name(String name) {
