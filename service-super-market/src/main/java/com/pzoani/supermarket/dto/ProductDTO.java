@@ -1,10 +1,8 @@
-package com.pzoani.supermarket.DTO;
+package com.pzoani.supermarket.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -12,7 +10,7 @@ import java.math.BigDecimal;
 public class ProductDTO {
     private String id;
     private String name;
-    private BigDecimal price;
+    private Double price;
     private String categoryId;
     private String vendorId;
 }

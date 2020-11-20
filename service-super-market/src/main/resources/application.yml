@@ -29,7 +29,7 @@ spring:
   data:
     mongodb:
       host: localhost
-      port: 28018
+      port: 27017
       database: super-market
 server:
   port: 8080

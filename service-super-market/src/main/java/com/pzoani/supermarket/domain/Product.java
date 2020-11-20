@@ -1,40 +1,49 @@
 package com.pzoani.supermarket.domain;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 @Document
 public class Product {
 
+    private static final MathContext MATH_CONTEXT
+        = new MathContext(2, RoundingMode.HALF_EVEN);
+
     @Id
     private String id;
-
     private String name;
-
     private BigDecimal price;
-
-    @DBRef
-    private Category category;
-
-    @DBRef
-    private Vendor vendor;
+    private String categoryId;
+    private String vendorId;
 
     public Product() {
     }
 
+    public Product(String id, String name, String price,
+        String categoryId, String vendorId
+    ) {
+        this(id, name, new BigDecimal(price, MATH_CONTEXT), categoryId, vendorId);
+    }
+
+    public Product(String id, String name, Double price,
+        String categoryId, String vendorId
+    ) {
+        this(id, name, new BigDecimal(price, MATH_CONTEXT), categoryId, vendorId);
+    }
+
     public Product(String id, String name, BigDecimal price,
-        Category category, Vendor vendor
+        String categoryId, String vendorId
     ) {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.category = category;
-        this.vendor = vendor;
+        this.categoryId = categoryId;
+        this.vendorId = vendorId;
     }
 
     public String getId() {
@@ -57,53 +66,59 @@ public class Product {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+//    public void setPrice(BigDecimal price) {
+//        this.price = price;
+//    }
+//
+//    public void setPrice(String price) {
+//        this.price = new BigDecimal(price, MATH_CONTEXT);
+//    }
+
+    public void setPrice(Double price) {
+        this.price = new BigDecimal(price, MATH_CONTEXT);
     }
 
-    public Category getCategory() {
-        return category;
+    public String getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
     }
 
-    public Vendor getVendor() {
-        return vendor;
+    public String getVendorId() {
+        return vendorId;
     }
 
-    public void setVendor(Vendor vendor) {
-        this.vendor = vendor;
+    public void setVendorId(String vendorId) {
+        this.vendorId = vendorId;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) {
+        if (obj == null || getClass() != obj.getClass())
             return false;
-        }
         Product that = (Product) obj;
         return name.equals(that.name) &&
             price.equals(that.price) &&
-            vendor.equals(that.vendor) &&
-            category.equals(that.category);
+            vendorId.equals(that.vendorId) &&
+            categoryId.equals(that.categoryId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, price, category, vendor);
+        return Objects.hash(name, price, categoryId, vendorId);
     }
 
     @Override
     public String toString() {
-        ObjectMapper objectMapper = new ObjectMapper();
         return "Product{" +
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", price=" + price +
-            ", category=" + category +
-            ", vendor=" + vendor +
+            ", category=" + categoryId +
+            ", vendor=" + vendorId +
             '}';
     }
 
@@ -115,8 +130,8 @@ public class Product {
         private String id;
         private String name;
         private BigDecimal price;
-        private Category category;
-        private Vendor vendor;
+        private String categoryId;
+        private String vendorId;
 
         public Builder id(String id) {
             this.id = id;
@@ -133,19 +148,29 @@ public class Product {
             return this;
         }
 
-        public Builder category(Category category) {
-            this.category = category;
+        public Builder price(Double price) {
+            this.price = new BigDecimal(price, MATH_CONTEXT);
             return this;
         }
 
-        public Builder vendor(Vendor vendor) {
-            this.vendor = vendor;
+        public Builder price(String price) {
+            this.price = new BigDecimal(price, MATH_CONTEXT);
+            return this;
+        }
+
+        public Builder categoryId(String categoryId) {
+            this.categoryId = categoryId;
+            return this;
+        }
+
+        public Builder vendorId(String vendorId) {
+            this.vendorId = vendorId;
             return this;
         }
 
         public Product build() {
-            return new Product(null, name, price,
-                category, vendor
+            return new Product(id, name, price,
+                categoryId, vendorId
             );
         }
     }

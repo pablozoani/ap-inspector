@@ -1,5 +1,6 @@
 package com.pzoani.supermarket.handler;
 
+import com.pzoani.inspector.Inspector;
 import com.pzoani.supermarket.domain.Category;
 import com.pzoani.supermarket.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Profile("handlers")
@@ -18,12 +18,15 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class CategoryHandler {
 
     private final CategoryRepository categoryRepository;
-
+    private final Inspector<Category> inspector;
     private static final Class<Category> clazz = Category.class;
 
     @Autowired
-    public CategoryHandler(CategoryRepository categoryRepository) {
+    public CategoryHandler(CategoryRepository categoryRepository,
+        Inspector<Category> inspector
+    ) {
         this.categoryRepository = categoryRepository;
+        this.inspector = inspector;
     }
 
     public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
@@ -32,27 +35,34 @@ public class CategoryHandler {
             .body(categoryRepository.findAll(), clazz);
     }
 
-    public Mono<ServerResponse> findById(ServerRequest serverRequest) {
-        return ServerResponse.ok()
-            .contentType(APPLICATION_JSON)
-            .body(categoryRepository
-                .findById(serverRequest.pathVariable("id")), clazz
+    public Mono<ServerResponse> save(ServerRequest serverRequest) {
+        return serverRequest
+            .bodyToMono(clazz)
+            .doOnNext(inspector::inspect)
+            .flatMap(categoryRepository::save)
+            .flatMap(c -> ServerResponse
+                .status(CREATED)
+                .contentType(APPLICATION_JSON)
+                .bodyValue(c)
             );
     }
 
-    public Mono<ServerResponse> save(ServerRequest serverRequest) {
-        return Mono.from(serverRequest.bodyToFlux(clazz)
-            .flatMap(categoryRepository::save)
-        ).flatMap(c -> ServerResponse
-            .created(URI.create(serverRequest.path() + "/" + c.getId()))
-            .contentType(APPLICATION_JSON)
-            .build()
-        );
+    public Mono<ServerResponse> findById(ServerRequest serverRequest) {
+        return categoryRepository.findById(serverRequest.pathVariable("id"))
+            .flatMap(category -> ServerResponse
+                .ok()
+                .contentType(APPLICATION_JSON)
+                .bodyValue(category)
+            ).switchIfEmpty(ServerResponse
+                .notFound()
+                .build()
+            );
     }
 
     public Mono<ServerResponse> update(ServerRequest serverRequest) {
         return categoryRepository.findById(serverRequest.pathVariable("id"))
-            .flatMap(old -> serverRequest.bodyToMono(clazz)
+            .map(old -> serverRequest.bodyToMono(clazz)
+                .doOnNext(inspector::inspect)
                 .flatMap(niu -> {
                     niu.setId(old.getId());
                     return categoryRepository.save(niu);
@@ -60,14 +70,22 @@ public class CategoryHandler {
             ).flatMap(c -> ServerResponse
                 .ok()
                 .contentType(APPLICATION_JSON)
+                .body(c, clazz)
+            ).switchIfEmpty(ServerResponse
+                .notFound()
                 .build()
             );
     }
 
     public Mono<ServerResponse> delete(ServerRequest serverRequest) {
-        return categoryRepository.deleteById(serverRequest.pathVariable("id"))
-            .flatMap(boid -> ServerResponse
-                .ok()
+        return categoryRepository.findById(serverRequest.pathVariable("id"))
+            .flatMap(c -> categoryRepository.delete(c)
+                .then(ServerResponse
+                    .ok()
+                    .build()
+                )
+            ).switchIfEmpty(ServerResponse
+                .notFound()
                 .build()
             );
     }

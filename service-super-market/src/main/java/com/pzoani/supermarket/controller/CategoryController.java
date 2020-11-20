@@ -1,7 +1,8 @@
 package com.pzoani.supermarket.controller;
 
+import com.pzoani.inspector.Inspector;
+import com.pzoani.supermarket.config.Urls;
 import com.pzoani.supermarket.domain.Category;
-import com.pzoani.supermarket.paths.Endpoints;
 import com.pzoani.supermarket.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -15,14 +16,19 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Profile("controllers")
 @RestController
-@RequestMapping(Endpoints.CATEGORIES_BASE_URL)
+@RequestMapping(Urls.CATEGORIES_BASE_URL)
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;
 
+    private final Inspector<Category> inspector;
+
     @Autowired
-    public CategoryController(CategoryRepository categoryRepository) {
+    public CategoryController(CategoryRepository categoryRepository,
+        Inspector<Category> inspector
+    ) {
         this.categoryRepository = categoryRepository;
+        this.inspector = inspector;
     }
 
     @GetMapping
@@ -32,24 +38,34 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     public Mono<Category> findById(@PathVariable("id") String id) {
-        return categoryRepository.findById(id);
+        return categoryRepository.findById(id)
+            .switchIfEmpty(Mono.error(new ResponseStatusException(
+                NOT_FOUND, "Category " + id + " not found."
+            )));
     }
 
     @ResponseStatus(CREATED)
     @PostMapping(consumes = "application/json")
     public Mono<Category> save(@RequestBody Category category) {
-        return categoryRepository.save(category);
+        return categoryRepository.save(inspector.inspect(category));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id}", consumes = "application/json")
     public Mono<Category> update(@PathVariable("id") String id,
-        @RequestBody Mono<Category> categoryMono
+        @RequestBody Category category
     ) {
-        // TODO
-        return categoryRepository.saveAll(categoryMono.map(c -> {
-            c.setId(id);
-            return c;
-        })).next();
+        return categoryRepository.existsById(id)
+            .flatMap(bool -> {
+                if (bool) {
+                    inspector.inspect(category);
+                    category.setId(id);
+                    return categoryRepository.save(category);
+                } else {
+                    throw new ResponseStatusException(NOT_FOUND,
+                        "Category " + id + " not found."
+                    );
+                }
+            });
     }
 
     @DeleteMapping("/{id}")
@@ -59,8 +75,7 @@ public class CategoryController {
                 if (bool) {
                     return categoryRepository.deleteById(id);
                 } else {
-                    throw new ResponseStatusException(
-                        NOT_FOUND,
+                    throw new ResponseStatusException(NOT_FOUND,
                         "Category " + id + " not found."
                     );
                 }

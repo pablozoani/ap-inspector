@@ -5,7 +5,12 @@ import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InspectorTest {
 
@@ -14,6 +19,7 @@ class InspectorTest {
     private class Person {
         private String firstName;
         private String lastName;
+        private Double height;
 
         public Person setFirstName(String firstName) {
             this.firstName = firstName;
@@ -372,6 +378,107 @@ class InspectorTest {
     @Test
     void haveLengthRangeWithException() {
         final Person p = new Person();
+        inspector = new Inspector<>(new RuntimeException()) {
+            @Override
+            public Person inspect(Person person) {
+                return begin()
+                    .haveLengthRange(2, 4, new IllegalArgumentException(),
+                        person.getFirstName(), person.getLastName()
+                    ).end(person);
+            }
+        };
 
+        p.setFirstName("John").setLastName("D");
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+        p.setFirstName(null).setLastName(null);
+
+        p.setFirstName("J").setLastName("Doe");
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+        p.setFirstName(null).setLastName(null);
+
+        p.setFirstName("Johnn").setLastName("Doe");
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+        p.setFirstName(null).setLastName(null);
+
+        p.setFirstName("John").setLastName("Doeee");
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+        p.setFirstName(null).setLastName(null);
+
+        p.setFirstName("John").setLastName("Doe");
+        Person inspected = inspector.inspect(p);
+        assertEquals(p, inspected);
+    }
+
+    @Test
+    void haveLengthRangeWithoutException() {
+        final Person p = new Person();
+        inspector = new Inspector<>(new IllegalArgumentException()) {
+            @Override
+            public Person inspect(Person person) {
+                return begin()
+                    .haveLengthRange(2, 4, person.getFirstName(),
+                        person.getLastName()
+                    ).end(person);
+            }
+        };
+
+        p.setFirstName("John").setLastName("D");
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+        p.setFirstName(null).setLastName(null);
+
+        p.setFirstName("J").setLastName("Doe");
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+        p.setFirstName(null).setLastName(null);
+
+        p.setFirstName("Johnn").setLastName("Doe");
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+        p.setFirstName(null).setLastName(null);
+
+        p.setFirstName("John").setLastName("Doeee");
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+        p.setFirstName(null).setLastName(null);
+
+        p.setFirstName("John").setLastName("Doe");
+        Person inspected = inspector.inspect(p);
+        assertEquals(p, inspected);
+    }
+
+    @Test
+    void isPositiveWithException() {
+        final Person p = new Person();
+        inspector = new Inspector<>(new RuntimeException()) {
+            @Override
+            public Person inspect(Person person) {
+                return begin()
+                    .isPositive(new IllegalArgumentException(),
+                        person.getHeight()
+                    ).end(person);
+            }
+        };
+
+        p.setHeight(-1.82);
+        assertThrows(IllegalArgumentException.class, () -> {
+            inspector.inspect(p);
+        });
+
+        p.setHeight(0.0);
+        Person inspected = inspector.inspect(p);
+        assertEquals(p, inspected);
     }
 }

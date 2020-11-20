@@ -8,9 +8,7 @@ public class Vendor {
 
     @Id
     private String id;
-
     private String firstName;
-
     private String lastName;
 
     public Vendor() {
@@ -95,11 +93,7 @@ public class Vendor {
         }
 
         public Vendor build() {
-            Vendor output = new Vendor();
-            output.id = this.id;
-            output.firstName = this.firstName;
-            output.lastName = this.lastName;
-            return output;
+            return new Vendor(id, firstName, lastName);
         }
     }
 }

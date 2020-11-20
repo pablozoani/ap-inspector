@@ -1,8 +1,8 @@
 package com.pzoani.supermarket.controller;
 
 import com.pzoani.inspector.Inspector;
+import com.pzoani.supermarket.config.Urls;
 import com.pzoani.supermarket.domain.Vendor;
-import com.pzoani.supermarket.paths.Endpoints;
 import com.pzoani.supermarket.repository.VendorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class VendorControllerTest {
     @Mock
     VendorRepository vendorRepository;
     VendorController vendorController;
-    Inspector<Vendor> inspector =
+    final Inspector<Vendor> inspector =
         new Inspector<>(new RuntimeException()) {
             @Override
             public Vendor inspect(Vendor vendor) { return vendor; }
@@ -62,7 +62,7 @@ class VendorControllerTest {
             .willReturn(Flux.just(vs));
         // then
         webTestClient.get()
-            .uri(Endpoints.VENDORS_BASE_URL)
+            .uri(Urls.VENDORS_BASE_URL)
             .exchange()
             .expectBodyList(Vendor.class)
             .hasSize(2)
@@ -81,7 +81,7 @@ class VendorControllerTest {
             .willReturn(Mono.just(v));
         // then
         webTestClient.get()
-            .uri(Endpoints.VENDORS_BASE_URL + "/any")
+            .uri(Urls.VENDORS_BASE_URL + "/any")
             .exchange()
             .expectBody(Vendor.class)
             .isEqualTo(v);
@@ -99,7 +99,7 @@ class VendorControllerTest {
             .thenReturn(Mono.just(v));
         // then
         webTestClient.post()
-            .uri(Endpoints.VENDORS_BASE_URL)
+            .uri(Urls.VENDORS_BASE_URL)
             .body(Mono.just(v), Vendor.class)
             .exchange()
             .expectStatus().isCreated()
@@ -117,12 +117,14 @@ class VendorControllerTest {
             .build();
         String id = UUID.randomUUID().toString();
         // when
-        when(vendorRepository.saveAll(any(Mono.class)))
-            .thenReturn(Flux.just(v));
+        when(vendorRepository.existsById(id))
+            .thenReturn(Mono.just(true));
+        when(vendorRepository.save(v))
+            .thenReturn(Mono.just(v));
         // then
         StepVerifier.create(
             webTestClient.put()
-                .uri(Endpoints.VENDORS_BASE_URL + "/" + id)
+                .uri(Urls.VENDORS_BASE_URL + "/" + id)
                 .body(Mono.just(v), Vendor.class)
                 .exchange()
                 .expectStatus().isOk()
@@ -141,7 +143,7 @@ class VendorControllerTest {
             .thenReturn(Mono.empty());
         webTestClient
             .delete()
-            .uri(Endpoints.VENDORS_BASE_URL + "/" + theId)
+            .uri(Urls.VENDORS_BASE_URL + "/" + theId)
             .exchange()
             .expectStatus().isOk();
         verify(vendorRepository, times(1)).existsById(theId);
@@ -150,7 +152,7 @@ class VendorControllerTest {
             .thenReturn(Mono.just(false));
         webTestClient
             .delete()
-            .uri(Endpoints.VENDORS_BASE_URL + "/" + theId)
+            .uri(Urls.VENDORS_BASE_URL + "/" + theId)
             .exchange()
             .expectStatus().isNotFound();
     }

@@ -1,10 +1,8 @@
 package com.pzoani.supermarket.controller;
 
-import com.pzoani.supermarket.DTO.ProductDTO;
-import com.pzoani.supermarket.domain.Category;
+import com.pzoani.inspector.Inspector;
+import com.pzoani.supermarket.config.Urls;
 import com.pzoani.supermarket.domain.Product;
-import com.pzoani.supermarket.domain.Vendor;
-import com.pzoani.supermarket.paths.Endpoints;
 import com.pzoani.supermarket.repository.CategoryRepository;
 import com.pzoani.supermarket.repository.ProductRepository;
 import com.pzoani.supermarket.repository.VendorRepository;
@@ -20,20 +18,23 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Profile("controllers")
 @RestController
-@RequestMapping(Endpoints.PRODUCTS_BASE_URL)
+@RequestMapping(Urls.PRODUCTS_BASE_URL)
 public class ProductController {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final VendorRepository vendorRepository;
+    private final Inspector<Product> inspector;
 
     @Autowired
     public ProductController(ProductRepository productRepository,
-        CategoryRepository categoryRepository, VendorRepository vendorRepository
+        CategoryRepository categoryRepository,
+        VendorRepository vendorRepository, Inspector<Product> inspector
     ) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.vendorRepository = vendorRepository;
+        this.inspector = inspector;
     }
 
     @GetMapping
@@ -41,50 +42,83 @@ public class ProductController {
         return productRepository.findAll();
     }
 
+    @GetMapping("/{id}")
+    public Mono<Product> findById(@PathVariable("id") String id) {
+        return productRepository.findById(id)
+            .switchIfEmpty(Mono.error(new ResponseStatusException(
+                NOT_FOUND,
+                "Product " + id + " not found."
+            )));
+    }
+
     @ResponseStatus(CREATED)
     @PostMapping(consumes = "application/json")
-    public Mono<Product> save(@RequestBody ProductDTO productDTO) {
-        Mono<Category> categoryMono = categoryRepository
-            .findById(productDTO.getCategoryId());
-        Mono<Vendor> vendorMono = vendorRepository
-            .findById(productDTO.getVendorId());
-        return vendorMono.zipWith(categoryMono)
+    public Mono<Product> save(@RequestBody Product product) {
+        inspector.inspect(product);
+        return categoryRepository
+            .existsById(product.getCategoryId())
+            .zipWith(vendorRepository.existsById(product.getVendorId()))
             .flatMap(tuple -> {
-                Vendor vendor = tuple.getT1();
-                Category category = tuple.getT2();
-                return productRepository.save(Product.builder()
-                    .name(productDTO.getName())
-                    .price(productDTO.getPrice())
-                    .category(category)
-                    .vendor(vendor)
-                    .build()
-                );
+                if (!tuple.getT1()) {
+                    throw new ResponseStatusException(NOT_FOUND,
+                        "Product's category not found."
+                    );
+                } else if (!tuple.getT2()) {
+                    throw new ResponseStatusException(NOT_FOUND,
+                        "Product's vendor not found."
+                    );
+                } else {
+                    return productRepository.save(inspector.inspect(
+                        Product.builder()
+                            .name(product.getName())
+                            .price(product.getPrice())
+                            .categoryId(product.getCategoryId())
+                            .vendorId(product.getVendorId())
+                            .build()
+                    ));
+                }
             });
     }
 
-    @PutMapping("/{id}")
-    public Mono<Product> update(@PathVariable("id") String id,
-        @RequestBody ProductDTO productDTO
-    ) {
-        Mono<Category> categoryMono = categoryRepository
-            .findById(productDTO.getCategoryId());
-        Mono<Vendor> vendorMono = vendorRepository
-            .findById(productDTO.getVendorId());
-        return vendorMono.zipWith(categoryMono)
-            .flatMap(tuple -> productRepository.save(Product
-                .builder()
-                .id(id)
-                .name(productDTO.getName())
-                .price(productDTO.getPrice())
-                .vendor(tuple.getT1())
-                .category(tuple.getT2())
-                .build()
-            ));
-    }
 
-    @GetMapping("/{id}")
-    public Mono<Product> findById(@PathVariable("id") String id) {
-        return productRepository.findById(id);
+    @PutMapping(path = "/{id}", consumes = "application/json")
+    public Mono<Product> update(@PathVariable("id") String id,
+        @RequestBody Product product
+    ) {
+        inspector.inspect(product);
+        return categoryRepository.existsById(product.getCategoryId())
+            .zipWith(vendorRepository.existsById(product.getVendorId()))
+            .flatMap(tuple -> {
+                if (!tuple.getT1()) {
+                    throw new ResponseStatusException(NOT_FOUND,
+                        "Product's category not found."
+                    );
+                } else if (!tuple.getT2()) {
+                    throw new ResponseStatusException(NOT_FOUND,
+                        "Product's vendor not found."
+                    );
+                } else {
+                    return productRepository.existsById(id)
+                        .flatMap(bool -> {
+                            if (bool) {
+                                return productRepository.save(Product
+                                    .builder()
+                                    .id(id)
+                                    .price(product.getPrice())
+                                    .name(product.getName())
+                                    .categoryId(product.getCategoryId())
+                                    .vendorId(product.getVendorId())
+                                    .build()
+                                );
+                            } else {
+                                throw new ResponseStatusException(
+                                    NOT_FOUND,
+                                    "Product " + id + " not found."
+                                );
+                            }
+                        });
+                }
+            });
     }
 
     @DeleteMapping("/{id}")
@@ -94,8 +128,7 @@ public class ProductController {
                 if (bool) {
                     return productRepository.deleteById(id);
                 } else {
-                    throw new ResponseStatusException(
-                        NOT_FOUND,
+                    throw new ResponseStatusException(NOT_FOUND,
                         "Product " + id + " not found."
                     );
                 }

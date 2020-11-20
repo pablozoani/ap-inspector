@@ -1,9 +1,9 @@
-#docker-compose.yml
 version: "3.8"
 services:
 
-  service-super-market:
-    build: ./service-super-market
+  super-market-api:
+    build: service-super-market
+    image: pzoani/super-market-api:1.0-SNAPSHOT
     ports:
       - ${SUPER_MARKET_SERVICE_PORT}:8080
     environment:

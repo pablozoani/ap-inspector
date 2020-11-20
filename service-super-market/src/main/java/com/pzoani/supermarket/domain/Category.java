@@ -8,7 +8,6 @@ public class Category {
 
     @Id
     private String id;
-
     private String name;
 
     public Category() {
@@ -38,9 +37,8 @@ public class Category {
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (obj == null || this.getClass() != obj.getClass()) {
+        if (obj == null || this.getClass() != obj.getClass())
             return false;
-        }
         Category cat = (Category) obj;
         return this.name.equals(cat.name);
     }
@@ -77,10 +75,7 @@ public class Category {
         }
 
         public Category build() {
-            Category output = new Category();
-            output.id = this.id;
-            output.name = this.name;
-            return output;
+            return new Category(id, name);
         }
     }
 }

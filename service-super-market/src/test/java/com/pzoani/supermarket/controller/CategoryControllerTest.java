@@ -1,14 +1,14 @@
 package com.pzoani.supermarket.controller;
 
+import com.pzoani.inspector.Inspector;
+import com.pzoani.supermarket.config.Urls;
 import com.pzoani.supermarket.domain.Category;
-import com.pzoani.supermarket.paths.Endpoints;
 import com.pzoani.supermarket.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.reactivestreams.Publisher;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
@@ -20,7 +20,6 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 class CategoryControllerTest {
 
@@ -28,13 +27,20 @@ class CategoryControllerTest {
 
     @Mock
     private CategoryRepository categoryRepository;
-
     CategoryController categoryController;
+    final Inspector<Category> categoryInspector =
+        new Inspector<>(new RuntimeException()) {
+            @Override
+            public Category inspect(Category category) {
+                return category;
+            }
+        };
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        categoryController = new CategoryController(categoryRepository);
+        categoryController =
+            new CategoryController(categoryRepository, categoryInspector);
         webTestClient = WebTestClient.bindToController(categoryController).build();
     }
 
@@ -84,7 +90,7 @@ class CategoryControllerTest {
             .willReturn(Mono.just(category));
         // then
         webTestClient.post()
-            .uri(Endpoints.CATEGORIES_BASE_URL)
+            .uri(Urls.CATEGORIES_BASE_URL)
             .body(Mono.just(category), Category.class)
             .exchange()
             .expectStatus().isCreated()
@@ -100,8 +106,10 @@ class CategoryControllerTest {
         Category c = Category.builder().name("Food").build();
         String id = UUID.randomUUID().toString();
         // when
-        BDDMockito.when(categoryRepository.saveAll(any(Mono.class)))
-            .thenReturn(Flux.just(c));
+        when(categoryRepository.existsById(id))
+            .thenReturn(Mono.just(true));
+        when(categoryRepository.save(c))
+            .thenReturn(Mono.just(c));
         // then
         StepVerifier.create(webTestClient.put().uri("/api/v1/categories/" + id)
             .body(Mono.just(c), Category.class)
@@ -122,7 +130,7 @@ class CategoryControllerTest {
             .thenReturn(Mono.empty());
         webTestClient
             .delete()
-            .uri(Endpoints.CATEGORIES_BASE_URL + "/" + theId)
+            .uri(Urls.CATEGORIES_BASE_URL + "/" + theId)
             .exchange()
             .expectStatus().isOk();
         verify(categoryRepository, times(1)).existsById(theId);
@@ -131,7 +139,7 @@ class CategoryControllerTest {
             .thenReturn(Mono.just(false));
         webTestClient
             .delete()
-            .uri(Endpoints.CATEGORIES_BASE_URL + "/" + theId)
+            .uri(Urls.CATEGORIES_BASE_URL + "/" + theId)
             .exchange()
             .expectStatus().isNotFound();
     }
