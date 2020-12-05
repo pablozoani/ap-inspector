@@ -1,9 +1,12 @@
 import React from "react"
-import Table from "react-bootstrap/Table"
-import classes from "./App.module.css"
+import Main from "./containers/Main"
 
 const App = () => {
-    return <div></div>
+    return (
+        <div>
+            <Main></Main>
+        </div>
+    )
 }
 
 export default App

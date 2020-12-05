@@ -8,6 +8,8 @@ import com.pzoani.supermarket.repository.ProductRepository;
 import com.pzoani.supermarket.repository.VendorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
@@ -19,6 +21,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Profile("controllers")
 @RestController
 @RequestMapping(Urls.PRODUCTS_BASE_URL)
+@CrossOrigin("*")
 public class ProductController {
 
     private final ProductRepository productRepository;
@@ -38,13 +41,100 @@ public class ProductController {
     }
 
     @GetMapping
-    public Flux<Product> findAll() {
-        return productRepository.findAll();
+    public Flux<Product> findAll(
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String sortOrder,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "3") int size,
+        @RequestParam(required = false) String productNameLike,
+        @RequestParam(required = false) String categoryId,
+        @RequestParam(required = false) String vendorId
+    ) {
+        size = size < 1 ? 1 : size > 100 ? 100 : size;
+
+        Sort.Order order = sortOrder.equals("des") ?
+            Sort.Order.desc(sortBy) :
+            Sort.Order.asc(sortBy);
+
+        boolean hasProductNameLike =
+            productNameLike != null && productNameLike.length() > 0;
+        boolean hasCategoryId = categoryId != null && categoryId.length() > 0;
+        boolean hasVendorId = vendorId != null && vendorId.length() > 0;
+
+        if (hasProductNameLike) {
+            String regex = "(?=(?i).*" +
+                String.join(")(?=(?i).*", productNameLike.split(" "))
+                + ")";
+            if (hasCategoryId) {
+                return productRepository.findByNameRegexAndCategoryId(
+                    regex, categoryId,
+                    PageRequest.of(page, size, Sort.by(order))
+                );
+            } else if (hasVendorId) {
+                return productRepository.findByNameRegexAndVendorId(
+                    regex, vendorId, PageRequest.of(page, size, Sort.by(order))
+                );
+            } else {
+                return productRepository.findByNameRegex(regex,
+                    PageRequest.of(page, size, Sort.by(order))
+                );
+            }
+        } else if (hasCategoryId) {
+            return productRepository.findByCategoryId(categoryId,
+                PageRequest.of(page, size, Sort.by(order))
+            );
+        } else if (hasVendorId) {
+            return productRepository.findByVendorId(vendorId,
+                PageRequest.of(page, size, Sort.by(order))
+            );
+        } else {
+            return productRepository.findBy(
+                PageRequest.of(page, size, Sort.by(order))
+            );
+        }
+    }
+
+    @GetMapping("/count")
+    public Mono<Long> count(
+        @RequestParam(required = false) String categoryId,
+        @RequestParam(required = false) String vendorId,
+        @RequestParam(required = false) String productNameLike
+    ) {
+        boolean hasProductNameLike =
+            productNameLike != null && productNameLike.length() > 0;
+        boolean hasCategoryId =
+            categoryId != null && categoryId.length() > 0;
+        boolean hasVendorId =
+            vendorId != null && vendorId.length() > 0;
+
+        if (hasProductNameLike) {
+            String regex = "(?=(?i).*" +
+                String.join(")(?=(?i).*", productNameLike.split(" "))
+                + ")";
+            if (hasCategoryId) {
+                return productRepository.countByNameRegexAndCategoryId(
+                    regex, categoryId
+                );
+            } else if (hasVendorId) {
+                return productRepository.countByNameRegexAndVendorId(
+                    regex, vendorId
+                );
+            } else {
+                return productRepository.countByNameRegex(regex);
+            }
+        } else if (hasCategoryId) {
+            return productRepository.countByCategoryId(categoryId);
+        } else if (hasVendorId) {
+            return productRepository.countByVendorId(vendorId);
+        } else {
+            return productRepository.count();
+        }
     }
 
     @GetMapping("/{id}")
     public Mono<Product> findById(@PathVariable("id") String id) {
-        return productRepository.findById(id)
+        return productRepository
+            .findById(id)
             .switchIfEmpty(Mono.error(new ResponseStatusException(
                 NOT_FOUND,
                 "Product " + id + " not found."

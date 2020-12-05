@@ -1,20 +1,26 @@
 version: "3.8"
 services:
-
-  super-market-api:
-    build: service-super-market
-    image: pzoani/super-market-api:1.0-SNAPSHOT
-    ports:
-      - ${SUPER_MARKET_SERVICE_PORT}:8080
-    environment:
-      - MONGO_HOST=db
-      - MONGO_PORT=${MONGO_CONTAINER_PORT}
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-    depends_on:
-      - db
-  db:
-    image: mongo:4.4.1
-    ports:
-      - ${MONGO_HOST_PORT}:${MONGO_CONTAINER_PORT}
-    volumes:
-      - ${MONGO_VOLUME_PATH}:/data/db
+    web-application:
+        build:
+            context: web-application
+            args:
+                - REACT_APP_API_URL=http://localhost:${SUPER_MARKET_SERVICE_PORT}
+        image: pzoani/super-market-webapp
+        ports:
+            - ${WEB_APP_PORT}:80
+        depends_on:
+            - super-market-api
+    super-market-api:
+        build: service-super-market
+        image: pzoani/super-market-api
+        ports:
+            - ${SUPER_MARKET_SERVICE_PORT}:8080
+        environment:
+            - MONGO_HOST=db
+            - MONGO_DB_NAME=${MONGO_DB_NAME}
+        depends_on:
+            - db
+    db:
+        image: mongo:4.4.1
+        volumes:
+            - ${MONGO_VOLUME_PATH}:/data/db

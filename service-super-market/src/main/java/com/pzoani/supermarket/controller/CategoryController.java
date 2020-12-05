@@ -17,6 +17,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Profile("controllers")
 @RestController
 @RequestMapping(Urls.CATEGORIES_BASE_URL)
+@CrossOrigin("*")
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;

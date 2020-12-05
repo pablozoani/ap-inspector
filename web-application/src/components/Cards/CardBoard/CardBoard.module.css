@@ -1,0 +1,25 @@
+.CardBoard {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: left;
+}
+
+.PageButton {
+    background-color: #eee;
+    border-radius: 2px;
+    border: 0px solid transparent;
+    color: #0077cc;
+    outline: none;
+}
+
+.PageButton:hover,
+.PageButton:focus {
+    color: #00aaee;
+    outline: none;
+}
+
+.PageButton:active {
+    transform: scale(1.2);
+}

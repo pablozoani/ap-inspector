@@ -237,7 +237,7 @@ public class SuperMarketApplicationTest {
 
         Product product = Product.builder()
             .name("Coffee Maker")
-            .price(12.0)
+            .price("12.0")
             .vendorId(vendor.getId())
             .categoryId(category.getId())
             .build();
@@ -256,7 +256,7 @@ public class SuperMarketApplicationTest {
         Product badProduct = Product
             .builder()
             .name("a")
-            .price(-1.0)
+            .price("-1.0")
             .build();
 
         webTestClient.post()
@@ -267,7 +267,7 @@ public class SuperMarketApplicationTest {
 
         Product badProduct2 = Product.builder()
             .name("Burgers")
-            .price(6.0)
+            .price("6.0")
             .categoryId("badId")
             .vendorId(product.getVendorId())
             .build();
@@ -310,7 +310,7 @@ public class SuperMarketApplicationTest {
 
         Product newProduct = Product.builder()
             .name("Coffee Maker")
-            .price(15.0)
+            .price("15.0")
             .vendorId(product.getVendorId())
             .categoryId(product.getCategoryId())
             .build();

@@ -4,4 +4,4 @@ WORKDIR /usr/src
 # Add the generated artifact to this docker image
 COPY ./target/*.jar service-super-market.jar
 
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=docker,controllers", "service-super-market.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=docker,controllers,bootstrap", "service-super-market.jar"]

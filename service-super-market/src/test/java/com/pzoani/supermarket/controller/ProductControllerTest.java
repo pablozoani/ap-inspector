@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
@@ -52,13 +53,13 @@ class ProductControllerTest {
         c1 = Category.builder().id("8").name("Best Seller").build();
         v1 = Vendor.builder().id("9").firstName("John").lastName("Doe").build();
         product1 = new Product(
-            "7", "Coffee Machine", 22.99,
+            "7", "Coffee Machine", "22.99",
             c1.getId(), v1.getId()
         );
         c2 = Category.builder().id("10").name("Limited Edition").build();
         v2 = Vendor.builder().id("11").firstName("Foo").lastName("Bar").build();
         product2 = new Product(
-            "13", "Notebook", 420.33,
+            "13", "Notebook", "420.33",
             c2.getId(), v2.getId()
         );
         productDTO1 = new ProductDTO(product1.getId(), product1.getName(),
@@ -76,7 +77,7 @@ class ProductControllerTest {
 
     @Test
     void findAll() {
-        given(productRepository.findAll())
+        given(productRepository.findBy(any(PageRequest.class)))
             .willReturn(Flux.just(product1, product2));
         webTestClient
             .get()

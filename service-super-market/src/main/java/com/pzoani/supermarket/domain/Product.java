@@ -2,21 +2,19 @@ package com.pzoani.supermarket.domain;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Objects;
 
 @Document
 public class Product {
 
-    private static final MathContext MATH_CONTEXT
-        = new MathContext(2, RoundingMode.HALF_EVEN);
-
     @Id
     private String id;
     private String name;
+    @Field(targetType = FieldType.DECIMAL128)
     private BigDecimal price;
     private String categoryId;
     private String vendorId;
@@ -27,13 +25,7 @@ public class Product {
     public Product(String id, String name, String price,
         String categoryId, String vendorId
     ) {
-        this(id, name, new BigDecimal(price, MATH_CONTEXT), categoryId, vendorId);
-    }
-
-    public Product(String id, String name, Double price,
-        String categoryId, String vendorId
-    ) {
-        this(id, name, new BigDecimal(price, MATH_CONTEXT), categoryId, vendorId);
+        this(id, name, new BigDecimal(price), categoryId, vendorId);
     }
 
     public Product(String id, String name, BigDecimal price,
@@ -66,16 +58,8 @@ public class Product {
         return price;
     }
 
-//    public void setPrice(BigDecimal price) {
-//        this.price = price;
-//    }
-//
-//    public void setPrice(String price) {
-//        this.price = new BigDecimal(price, MATH_CONTEXT);
-//    }
-
-    public void setPrice(Double price) {
-        this.price = new BigDecimal(price, MATH_CONTEXT);
+    public void setPrice(String price) {
+        this.price = new BigDecimal(price);
     }
 
     public String getCategoryId() {
@@ -148,13 +132,8 @@ public class Product {
             return this;
         }
 
-        public Builder price(Double price) {
-            this.price = new BigDecimal(price, MATH_CONTEXT);
-            return this;
-        }
-
         public Builder price(String price) {
-            this.price = new BigDecimal(price, MATH_CONTEXT);
+            this.price = new BigDecimal(price);
             return this;
         }
 

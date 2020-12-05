@@ -41,9 +41,8 @@ public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
     private void loadData() {
         new Thread(() -> {
             try {
-
                 // w8 4 db
-                Thread.sleep(3000L);
+                Thread.sleep(4000L);
                 ObjectMapper objectMapper = new ObjectMapper();
                 System.out.println("Loading data.");
 
@@ -51,7 +50,7 @@ public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
                 Category[] categories = new Category[]{
                     Category.builder().name("Best Offer").build(),
                     Category.builder().name("High Quality").build(),
-                    Category.builder().name("Limited").build(),
+                    Category.builder().name("Limited Edition").build(),
                     Category.builder().name("Best Seller").build()
                 };
 
@@ -67,12 +66,12 @@ public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
 
                 vendorRepository.deleteAll().block();
                 Vendor[] vendors = new Vendor[]{
-                    Vendor.builder().firstName("Company")
-                        .lastName(".ink").build(),
-                    Vendor.builder().firstName("Bar")
-                        .lastName("Foo").build(),
-                    Vendor.builder().firstName("Maria")
-                        .lastName("Bar").build()
+                    Vendor.builder().firstName("Tech")
+                        .lastName("Store").build(),
+                    Vendor.builder().firstName("Smart")
+                        .lastName("Electronics").build(),
+                    Vendor.builder().firstName("Computer")
+                        .lastName("Shop").build()
                 };
 
                 for (int i = 0; i < vendors.length; i++) {
@@ -84,30 +83,46 @@ public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
                     );
                 }
 
-                categoryRepository.deleteAll().block();
+                productRepository.deleteAll().block();
                 Product[] products = {
                     Product.builder().name("Ink Cartridge")
-                        .price(20.89).build(),
+                        .price("20.89").build(),
                     Product.builder().name("Laptop")
-                        .price(364.99).build(),
+                        .price("364.99").build(),
                     Product.builder().name("Hard Disk Drive")
-                        .price(43.99).build(),
+                        .price("43.99").build(),
                     Product.builder().name("WiFi Router")
-                        .price(59.99).build(),
+                        .price("59.99").build(),
                     Product.builder().name("Led Monitor")
-                        .price(158.00).build(),
+                        .price("158.00").build(),
                     Product.builder().name("MicroSD")
-                        .price(19.99).build(),
+                        .price("19.99").build(),
                     Product.builder().name("LED Cooler")
-                        .price(304.99).build(),
+                        .price("304.99").build(),
                     Product.builder().name("Gaming Mouse")
-                        .price(19.99).build(),
+                        .price("19.99").build(),
                     Product.builder().name("Bluetooth Headphones")
-                        .price(299.00).build(),
+                        .price("299.00").build(),
                     Product.builder().name("Personal Computer")
-                        .price(659.00).build(),
+                        .price("659.00").build(),
                     Product.builder().name("Android Tablet")
-                        .price(89.00).build(),
+                        .price("89.00").build(),
+                    Product.builder().name("Smart TV")
+                        .price("400.00").build(),
+                    Product.builder().name("RAM Memory")
+                        .price("50.0").build(),
+                    Product.builder().name("MicroSD")
+                        .price("16.99").build(),
+                    Product.builder().name("LED Cooler")
+                        .price("234.99").build(),
+                    Product.builder().name("Wireless Gaming Mouse")
+                        .price("29.99").build(),
+                    Product.builder().name("Wireless Keyboard")
+                        .price("15.99").build(),
+                    Product.builder().name("Streaming Media Player")
+                        .price("24.00").build(),
+                    Product.builder().name("Smart WiFi Router")
+                        .price("69.99").build()
                 };
 
                 productRepository.deleteAll().block();
@@ -122,7 +137,6 @@ public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
                         .writeValueAsString(savedProduct)
                     );
                 }
-
             } catch (InterruptedException | JsonProcessingException e) {
                 log.error(e.getMessage());
                 e.printStackTrace();

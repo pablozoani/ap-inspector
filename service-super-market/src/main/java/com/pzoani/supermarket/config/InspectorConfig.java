@@ -28,8 +28,8 @@ public class InspectorConfig {
                     ).isNotNull(exc("The price of the product cannot be null"),
                         product.getPrice()
                     ).isPositive(exc("The price of the product cannot be " +
-                            "a negative number."),
-                        product.getPrice()
+                            "a negative number."
+                        ), product.getPrice()
                     ).isNotBlank(exc("The category of the product cannot be " +
                         "null or blank."), product.getCategoryId()
                     ).isNotBlank(exc("The vendor of the product cannot be " +

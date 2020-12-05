@@ -8,6 +8,7 @@ spring:
     banner-mode: off
   profiles:
     active:
+      - bootstrap
       - controllers # controllers | handlers
       - localhost-OS # localhost-OS | docker
 logging:
