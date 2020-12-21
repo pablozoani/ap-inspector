@@ -17,42 +17,42 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 public class RouterConfig {
 
     @Bean
-    public RouterFunction<ServerResponse> routerFunction(VendorHandler vHandler,
-        CategoryHandler cHandler, ProductHandler productHandler
+    public RouterFunction<ServerResponse> routerFunction(VendorHandler vendorHandler,
+        CategoryHandler categoryHandler, ProductHandler productHandler
     ) {
         return RouterFunctions
 
-            .route(GET(vPath("")), vHandler::findAll)
-            .andRoute(POST(vPath("")), vHandler::save)
-            .andRoute(GET(vPath("/{id}")), vHandler::findById)
-            .andRoute(PUT(vPath("/{id}")), vHandler::update)
-            .andRoute(DELETE(vPath("/{id}")), vHandler::delete)
+            .route(GET(vendorHandlerPath("")), vendorHandler::findAll)
+            .andRoute(POST(vendorHandlerPath("")), vendorHandler::save)
+            .andRoute(GET(vendorHandlerPath("/{id}")), vendorHandler::findById)
+            .andRoute(PUT(vendorHandlerPath("/{id}")), vendorHandler::update)
+            .andRoute(DELETE(vendorHandlerPath("/{id}")), vendorHandler::delete)
 
-            .andRoute(GET(cPath("")), cHandler::findAll)
-            .andRoute(POST(cPath("")), cHandler::save)
-            .andRoute(GET(cPath("/{id}")), cHandler::findById)
-            .andRoute(PUT(cPath("/{id}")), cHandler::update)
-            .andRoute(DELETE(cPath("/{id}")), cHandler::delete)
+            .andRoute(GET(categoryHandlerPath("")), categoryHandler::findAll)
+            .andRoute(POST(categoryHandlerPath("")), categoryHandler::save)
+            .andRoute(GET(categoryHandlerPath("/{id}")), categoryHandler::findById)
+            .andRoute(PUT(categoryHandlerPath("/{id}")), categoryHandler::update)
+            .andRoute(DELETE(categoryHandlerPath("/{id}")), categoryHandler::delete)
 
-            .andRoute(GET(pPath("")), productHandler::findAll)
-            .andRoute(POST(pPath("")), productHandler::save)
-            .andRoute(GET(pPath("/{id}")), productHandler::findById)
-            .andRoute(PUT(pPath("/{id}")), productHandler::update)
-            .andRoute(DELETE(pPath("/{id}")), productHandler::delete)
+            .andRoute(GET(productHandlerPath("")), productHandler::findAll)
+            .andRoute(POST(productHandlerPath("")), productHandler::save)
+            .andRoute(GET(productHandlerPath("/{id}")), productHandler::findById)
+            .andRoute(PUT(productHandlerPath("/{id}")), productHandler::update)
+            .andRoute(DELETE(productHandlerPath("/{id}")), productHandler::delete)
 
 //            .andRoute(GET("/api/v1/bootstrap"), null)
             ;
     }
 
-    private String vPath(String append) {
+    private String vendorHandlerPath(String append) {
         return Urls.VENDORS_BASE_URL + append;
     }
 
-    private String cPath(String append) {
+    private String categoryHandlerPath(String append) {
         return Urls.CATEGORIES_BASE_URL + append;
     }
 
-    private String pPath(String append) {
+    private String productHandlerPath(String append) {
         return Urls.PRODUCTS_BASE_URL + append;
     }
 }

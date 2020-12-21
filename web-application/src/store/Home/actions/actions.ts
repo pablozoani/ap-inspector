@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios"
+import axios from "axios"
 import Product from "../model/Product"
 import { Dispatch } from "redux"
 import {
@@ -65,27 +65,27 @@ export const findAllProducts = () => (
     axios
         .get<Product[]>(
             API_BASE_URL +
-                "/api/v1/products?" +
-                "sortBy=" +
-                getState().home.sortBy[0] +
-                "&" +
-                "sortOrder=" +
-                getState().home.sortBy[1] +
-                "&" +
-                "page=" +
-                0 +
-                "&" +
-                "size=" +
-                getState().home.pageSize +
-                "&" +
-                "vendorId=" +
-                getState().home.currentVendorId +
-                "&" +
-                "categoryId=" +
-                getState().home.currentCategoryId +
-                "&" +
-                "productNameLike=" +
-                getState().home.currentSearchKey
+            "/api/v1/products?" +
+            "sortBy=" +
+            getState().home.sortBy[0] +
+            "&" +
+            "sortOrder=" +
+            getState().home.sortBy[1] +
+            "&" +
+            "page=" +
+            0 +
+            "&" +
+            "size=" +
+            getState().home.pageSize +
+            "&" +
+            "vendorId=" +
+            getState().home.currentVendorId +
+            "&" +
+            "categoryId=" +
+            getState().home.currentCategoryId +
+            "&" +
+            "productNameLike=" +
+            getState().home.currentSearchKey
         )
         .then((response) => {
             dispatch<FindAllProductsAction>({
@@ -103,27 +103,27 @@ export const movePageRight = () => (
     axios
         .get<Product[]>(
             API_BASE_URL +
-                "/api/v1/products?" +
-                "sortBy=" +
-                getState().home.sortBy[0] +
-                "&" +
-                "sortOrder=" +
-                getState().home.sortBy[1] +
-                "&" +
-                "page=" +
-                (getState().home.currentPage + 1) +
-                "&" +
-                "size=" +
-                getState().home.pageSize +
-                "&" +
-                "vendorId=" +
-                getState().home.currentVendorId +
-                "&" +
-                "categoryId=" +
-                getState().home.currentCategoryId +
-                "&" +
-                "productNameLike=" +
-                getState().home.currentSearchKey
+            "/api/v1/products?" +
+            "sortBy=" +
+            getState().home.sortBy[0] +
+            "&" +
+            "sortOrder=" +
+            getState().home.sortBy[1] +
+            "&" +
+            "page=" +
+            (getState().home.currentPage + 1) +
+            "&" +
+            "size=" +
+            getState().home.pageSize +
+            "&" +
+            "vendorId=" +
+            getState().home.currentVendorId +
+            "&" +
+            "categoryId=" +
+            getState().home.currentCategoryId +
+            "&" +
+            "productNameLike=" +
+            getState().home.currentSearchKey
         )
         .then((response) => {
             if (response.data.length > 0) {
@@ -144,27 +144,27 @@ export const movePageLeft = () => (
         axios
             .get<Product[]>(
                 API_BASE_URL +
-                    "/api/v1/products?" +
-                    "sortBy=" +
-                    getState().home.sortBy[0] +
-                    "&" +
-                    "sortOrder=" +
-                    getState().home.sortBy[1] +
-                    "&" +
-                    "page=" +
-                    (getState().home.currentPage - 1) +
-                    "&" +
-                    "size=" +
-                    getState().home.pageSize +
-                    "&" +
-                    "vendorId=" +
-                    getState().home.currentVendorId +
-                    "&" +
-                    "categoryId=" +
-                    getState().home.currentCategoryId +
-                    "&" +
-                    "productNameLike=" +
-                    getState().home.currentSearchKey
+                "/api/v1/products?" +
+                "sortBy=" +
+                getState().home.sortBy[0] +
+                "&" +
+                "sortOrder=" +
+                getState().home.sortBy[1] +
+                "&" +
+                "page=" +
+                (getState().home.currentPage - 1) +
+                "&" +
+                "size=" +
+                getState().home.pageSize +
+                "&" +
+                "vendorId=" +
+                getState().home.currentVendorId +
+                "&" +
+                "categoryId=" +
+                getState().home.currentCategoryId +
+                "&" +
+                "productNameLike=" +
+                getState().home.currentSearchKey
             )
             .then((response) => {
                 if (response.data.length > 0) {
@@ -185,27 +185,27 @@ export const movePageFirst = () => (
     axios
         .get<Product[]>(
             API_BASE_URL +
-                "/api/v1/products?" +
-                "sortBy=" +
-                getState().home.sortBy[0] +
-                "&" +
-                "sortOrder=" +
-                getState().home.sortBy[1] +
-                "&" +
-                "page=" +
-                0 +
-                "&" +
-                "size=" +
-                getState().home.pageSize +
-                "&" +
-                "vendorId=" +
-                getState().home.currentVendorId +
-                "&" +
-                "categoryId=" +
-                getState().home.currentCategoryId +
-                "&" +
-                "productNameLike=" +
-                getState().home.currentSearchKey
+            "/api/v1/products?" +
+            "sortBy=" +
+            getState().home.sortBy[0] +
+            "&" +
+            "sortOrder=" +
+            getState().home.sortBy[1] +
+            "&" +
+            "page=" +
+            0 +
+            "&" +
+            "size=" +
+            getState().home.pageSize +
+            "&" +
+            "vendorId=" +
+            getState().home.currentVendorId +
+            "&" +
+            "categoryId=" +
+            getState().home.currentCategoryId +
+            "&" +
+            "productNameLike=" +
+            getState().home.currentSearchKey
         )
         .then((response) => {
             dispatch<MovePageFirstAction>({
@@ -223,15 +223,15 @@ export const movePageLast = () => (
     axios
         .get<number>(
             API_BASE_URL +
-                "/api/v1/products/count?" +
-                "categoryId=" +
-                getState().home.currentCategoryId +
-                "&" +
-                "vendorId=" +
-                getState().home.currentVendorId +
-                "&" +
-                "productNameLike=" +
-                getState().home.currentSearchKey
+            "/api/v1/products/count?" +
+            "categoryId=" +
+            getState().home.currentCategoryId +
+            "&" +
+            "vendorId=" +
+            getState().home.currentVendorId +
+            "&" +
+            "productNameLike=" +
+            getState().home.currentSearchKey
         )
         .then((response) => {
             const page = Math.trunc(
@@ -240,27 +240,27 @@ export const movePageLast = () => (
             axios
                 .get<Product[]>(
                     API_BASE_URL +
-                        "/api/v1/products?" +
-                        "sortBy=" +
-                        getState().home.sortBy[0] +
-                        "&" +
-                        "sortOrder=" +
-                        getState().home.sortBy[1] +
-                        "&" +
-                        "page=" +
-                        page +
-                        "&" +
-                        "size=" +
-                        getState().home.pageSize +
-                        "&" +
-                        "vendorId=" +
-                        getState().home.currentVendorId +
-                        "&" +
-                        "categoryId=" +
-                        getState().home.currentCategoryId +
-                        "&" +
-                        "productNameLike=" +
-                        getState().home.currentSearchKey
+                    "/api/v1/products?" +
+                    "sortBy=" +
+                    getState().home.sortBy[0] +
+                    "&" +
+                    "sortOrder=" +
+                    getState().home.sortBy[1] +
+                    "&" +
+                    "page=" +
+                    page +
+                    "&" +
+                    "size=" +
+                    getState().home.pageSize +
+                    "&" +
+                    "vendorId=" +
+                    getState().home.currentVendorId +
+                    "&" +
+                    "categoryId=" +
+                    getState().home.currentCategoryId +
+                    "&" +
+                    "productNameLike=" +
+                    getState().home.currentSearchKey
                 )
                 .then((res) => {
                     dispatch<MovePageLastAction>({
