@@ -1,5 +1,6 @@
 package com.pzoani.inspector;
 
+import java.math.BigDecimal;
 import java.util.function.Function;
 
 /**
@@ -35,6 +36,11 @@ public abstract class Inspector<T> implements Function<T, T> {
 
         public T end(T t) {
             return t;
+        }
+
+        public InspectionRules run(Runnable runnable) {
+            runnable.run();
+            return this;
         }
 
         // IS NOT NULL  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -144,6 +150,25 @@ public abstract class Inspector<T> implements Function<T, T> {
         ) {
             int length = string.length();
             return (length < minLength || length > maxLength);
+        }
+
+        // IS POSITIVE  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        public InspectionRules isPositive(RuntimeException exception,
+            BigDecimal number
+        ) {
+            if (number.signum() == -1) {
+                throw exception;
+            }
+            return this;
+        }
+
+        public InspectionRules isPositive(RuntimeException exception,
+            Double number
+        ) {
+            if (number < 0) {
+                throw exception;
+            }
+            return this;
         }
     }
 }

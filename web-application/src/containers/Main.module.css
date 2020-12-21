@@ -1,0 +1,27 @@
+.Container {
+    /* position: fixed; */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    box-sizing: border-box;
+    /* margin: 1rem; */
+    /* margin: 1rem auto; */
+    /* margin-top: 1rem; */
+    margin: auto;
+    width: 18rem;
+    background-color: #002244;
+    /* background-color: transparent; */
+}
+
+@media (min-width: 35rem) {
+    .Container {
+        width: 35rem;
+    }
+}
+
+@media (min-width: 52rem) {
+    .Container {
+        width: 52rem;
+    }
+}

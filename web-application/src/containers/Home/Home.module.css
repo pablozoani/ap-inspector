@@ -1,0 +1,20 @@
+.Select {
+    margin: 0;
+    width: 16rem;
+    box-sizing: border-box;
+    /* background-color: transparent; */
+    background: #eee;
+    padding: 0.5rem 1rem;
+    border-radius: 2px;
+    border: 0px;
+    cursor: pointer;
+}
+
+.Search {
+    margin: 0;
+    padding: 0.5rem 1rem;
+    width: 16rem;
+    background: #eee;
+    border: 0px;
+    border-radius: 2px;
+}

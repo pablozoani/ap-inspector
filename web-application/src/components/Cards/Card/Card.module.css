@@ -1,0 +1,22 @@
+.Card {
+    margin: 0;
+    padding: 0.25rem 1rem;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    width: 16rem;
+    transition: all 0.05s linear;
+    cursor: pointer;
+    background-color: #eee;
+}
+
+.Card:hover {
+    transform: scale(1.02);
+}
+
+.CardTitle {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    font-size: 1.125rem;
+}

@@ -8,9 +8,7 @@ public class Vendor {
 
     @Id
     private String id;
-
     private String firstName;
-
     private String lastName;
 
     public Vendor() {
@@ -61,15 +59,28 @@ public class Vendor {
         return this.lastName.hashCode() + this.firstName.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return "Vendor{" +
+            "id='" + id + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            '}';
+    }
+
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
+        private String id;
+        private String firstName;
+        private String lastName;
 
-        private String firstName = null;
-
-        private String lastName = null;
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder firstName(String firstName) {
             this.firstName = firstName;
@@ -82,10 +93,7 @@ public class Vendor {
         }
 
         public Vendor build() {
-            Vendor output = new Vendor();
-            output.firstName = this.firstName;
-            output.lastName = this.lastName;
-            return output;
+            return new Vendor(id, firstName, lastName);
         }
     }
 }

@@ -1,0 +1,19 @@
+.MenuItem {
+    padding: 0.5rem 1rem;
+    /* font-family: sans-serif; */
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    /* color: #0077cc; */
+    color: #003355;
+}
+
+.MenuItem:hover {
+    color: #00aaee;
+}
+
+.dontDisplay {
+    display: none;
+}

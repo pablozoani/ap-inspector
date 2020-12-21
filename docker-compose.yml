@@ -1,23 +1,26 @@
-#docker-compose.yml
 version: "3.8"
 services:
-
-  service-super-market:
-    build: ./service-super-market
-    ports:
-      - 9090:${SERVER_PORT}
-    environment:
-      - SERVER_PORT=${SERVER_PORT}
-      - MONGO_HOST=db
-      - MONGO_PORT=27017
-      - MONGO_DB_NAME=${MONGO_DB_NAME}
-    depends_on:
-      - db
-
-  db:
-    image: mongo:4.4.1
-    restart: always
-    ports:
-      - ${MONGO_PORT}:27017
-    volumes:
-      - ${MONGO_VOLUME_PATH}:/data/db
+    web-application:
+        build:
+            context: web-application
+            args:
+                - REACT_APP_API_URL=http://localhost:${SUPER_MARKET_SERVICE_PORT}
+        image: pzoani/super-market-webapp
+        ports:
+            - ${WEB_APP_PORT}:80
+        depends_on:
+            - super-market-api
+    super-market-api:
+        build: service-super-market
+        image: pzoani/super-market-api
+        ports:
+            - ${SUPER_MARKET_SERVICE_PORT}:8080
+        environment:
+            - MONGO_HOST=db
+            - MONGO_DB_NAME=${MONGO_DB_NAME}
+        depends_on:
+            - db
+    db:
+        image: mongo:4.4.1
+        volumes:
+            - ${MONGO_VOLUME_PATH}:/data/db

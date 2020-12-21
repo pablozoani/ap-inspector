@@ -1,35 +1,44 @@
-spring:
-  application:
-    name: service-super-market
-  output:
-    ansi:
-      enabled: always
-  main:
-    banner-mode: off
-  profiles:
-    active:
-      - controllers # controllers | handlers
-      - localhost-OS # localhost-OS | docker
 logging:
   level:
     root: INFO
+server:
+  port: 8080
+spring:
+  application:
+    name: service-super-market
+  main:
+    banner-mode: off
+  output:
+    ansi:
+      enabled: always
+  profiles:
+    active:
+      - bootstrap
+      - controllers # controllers | handlers
+      - embed-mongo # localhost-OS | docker | embed-mongo
 ---
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
   profiles: docker
   data:
     mongodb:
-      host: ${MONGO_HOST}
-      port: ${MONGO_PORT}
       database: ${MONGO_DB_NAME}
-server:
-  port: ${SERVER_PORT}
+      host: ${MONGO_HOST}
+      port: 27017
 ---
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
   profiles: localhost-OS
   data:
     mongodb:
+      database: super-market
       host: localhost
       port: 27017
+---
+spring:
+  profiles: embed-mongo
+  data:
+    mongodb:
       database: super-market
-server:
-  port: 8080

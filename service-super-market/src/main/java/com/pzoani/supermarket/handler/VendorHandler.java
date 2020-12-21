@@ -1,5 +1,6 @@
 package com.pzoani.supermarket.handler;
 
+import com.pzoani.inspector.Inspector;
 import com.pzoani.supermarket.domain.Vendor;
 import com.pzoani.supermarket.repository.VendorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Profile("handlers")
@@ -18,12 +18,15 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class VendorHandler {
 
     private final VendorRepository vendorRepository;
-
+    private final Inspector<Vendor> inspector;
     private static final Class<Vendor> clazz = Vendor.class;
 
     @Autowired
-    public VendorHandler(VendorRepository vendorRepository) {
+    public VendorHandler(VendorRepository vendorRepository,
+        Inspector<Vendor> inspector
+    ) {
         this.vendorRepository = vendorRepository;
+        this.inspector = inspector;
     }
 
     public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
@@ -33,27 +36,33 @@ public class VendorHandler {
     }
 
     public Mono<ServerResponse> save(ServerRequest serverRequest) {
-        return Mono.from(serverRequest.bodyToFlux(clazz)
+        return serverRequest
+            .bodyToMono(clazz)
+            .doOnNext(inspector::inspect)
             .flatMap(vendorRepository::save)
-        ).flatMap(v -> ServerResponse
-            .created(URI.create(serverRequest.path() + "/" + v.getId()))
-            .contentType(APPLICATION_JSON)
-            .build()
-        );
-    }
-
-    public Mono<ServerResponse> findById(ServerRequest serverRequest) {
-        return ServerResponse.ok()
-            .contentType(APPLICATION_JSON)
-            .body(vendorRepository
-                .findById(serverRequest.pathVariable("id")), clazz
+            .flatMap(v -> ServerResponse
+                .status(CREATED)
+                .contentType(APPLICATION_JSON)
+                .bodyValue(v)
             );
     }
 
+    public Mono<ServerResponse> findById(ServerRequest serverRequest) {
+        return vendorRepository.findById(serverRequest.pathVariable("id"))
+            .flatMap(v -> ServerResponse
+                .ok()
+                .contentType(APPLICATION_JSON)
+                .bodyValue(v)
+            ).switchIfEmpty(ServerResponse
+                .notFound()
+                .build()
+            );
+    }
 
     public Mono<ServerResponse> update(ServerRequest serverRequest) {
         return vendorRepository.findById(serverRequest.pathVariable("id"))
-            .flatMap(old -> serverRequest.bodyToMono(clazz)
+            .map(old -> serverRequest.bodyToMono(clazz)
+                .doOnNext(inspector::inspect)
                 .flatMap(niu -> {
                     niu.setId(old.getId());
                     return vendorRepository.save(niu);
@@ -61,14 +70,23 @@ public class VendorHandler {
             ).flatMap(v -> ServerResponse
                 .ok()
                 .contentType(APPLICATION_JSON)
+                .body(v, clazz)
+            ).switchIfEmpty(ServerResponse
+                .notFound()
                 .build()
             );
     }
 
     public Mono<ServerResponse> delete(ServerRequest serverRequest) {
-        return vendorRepository.deleteById(serverRequest.pathVariable("id"))
-            .flatMap(boid -> ServerResponse
-                .ok()
+        return vendorRepository.findById(serverRequest.pathVariable("id"))
+            .flatMap(v -> vendorRepository
+                .delete(v)
+                .then(ServerResponse
+                    .ok()
+                    .build()
+                )
+            ).switchIfEmpty(ServerResponse
+                .notFound()
                 .build()
             );
     }
