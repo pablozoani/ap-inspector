@@ -84,4 +84,4 @@ This project is composed by:
     -   A controllers layer, tested.
     -   Another implementation of the controllers layers, but with the routing functions approach. Although this is not complete.
     -   Integration tests.
--   The web application module. Very simple but responsive and functional. It still needs a refactoring in the structure of the code, especially the code related to redux. At least it shows that the api's functionality works as expected.
+-   The web application module (to test the api).
