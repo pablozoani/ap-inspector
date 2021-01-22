@@ -1,9 +1,9 @@
 import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { API_BASE_URL } from "../../../store/constants"
-import { setScene } from "../../../store/Main/actions/actions"
-import { RootState } from "../../../store/rootReducer"
+import { API_BASE_URL } from "../../../constants/urls"
+import { setScene } from "../../../actions/sceneActions"
+import { RootState } from "../../../reducers"
 import { HOME } from "../../scenes/scenes"
 import classes from "./AddProduct.module.css"
 

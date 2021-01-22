@@ -6,7 +6,7 @@ import "./index.module.css"
 import { Provider } from "react-redux"
 import { createStore, applyMiddleware } from "redux"
 import thunk from "redux-thunk"
-import { rootReducer } from "./store/rootReducer"
+import { rootReducer } from "./reducers"
 
 const store = createStore(rootReducer, applyMiddleware(thunk))
 

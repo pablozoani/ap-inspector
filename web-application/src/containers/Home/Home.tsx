@@ -14,22 +14,23 @@ import {
     setCurrentSearchKey,
     setCurrentVendorId,
     setSortBy
-} from "../../store/Home/actions/actions";
-import { RootState } from "../../store/rootReducer";
+} from "../../actions/homeActions";
+import { RootState } from "../../reducers";
 import classes from "./Home.module.css";
-import Category from "../../store/Home/model/Category";
-import Vendor from "../../store/Home/model/Vendor";
+import Category from "../../model/Category";
+import Vendor from "../../model/Vendor";
 import MenuToggle from "../../components/Menus/MenuToggle/MenuToggle";
 import Menu from "../../components/Menus/Menu/Menu";
 import MenuItem from "../../components/Menus/MenuItem/MenuItem";
 import Backdrop from "../../components/Backdrop/Backdrop";
 import * as Scenes from "../scenes/scenes";
-import { setScene } from "../../store/Main/actions/actions";
+import { setScene } from "../../actions/sceneActions";
 
 const Home = () => {
     const [menuIsVisible, setMenuIsVisible] = useState(false);
     const dispatch = useDispatch();
-    const currentPage = useSelector((state: RootState) => state.home.currentPage);
+    // const currentPage = useSelector((state: RootState) => state.home.currentPage);
+    const currentPage = useSelector(({ home: { currentPage } }: RootState) => currentPage);
     const pageSize = useSelector((state: RootState) => state.home.pageSize);
     const currentSortType = useSelector((state: RootState) => state.home.sortBy);
     const products = useSelector((state: RootState) => state.home.products);

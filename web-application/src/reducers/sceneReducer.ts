@@ -1,5 +1,5 @@
-import * as ActionTypes from "../actions/types/types"
-import * as State from "./state"
+import * as ActionTypes from "../types/sceneTypes";
+import * as State from "./states/sceneState";
 
 export default (
     state: State.MainState = State.initialState,
@@ -10,8 +10,8 @@ export default (
             return {
                 ...state,
                 currentScene: action.scene
-            }
+            };
         default:
-            return state
+            return state;
     }
-}
+};

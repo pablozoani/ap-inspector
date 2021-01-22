@@ -1,6 +1,6 @@
 import { combineReducers } from "redux"
-import mainReducer from "./Main/reducer/reducer"
-import homeReducer from "./Home/reducer/reducer"
+import homeReducer from "./homeReducer"
+import mainReducer from "./sceneReducer"
 
 export const rootReducer = combineReducers({
     main: mainReducer,
