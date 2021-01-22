@@ -76,7 +76,7 @@ Visit http://localhost:3001 with your browser.
 
 This project is composed by:
 
--   The inspector module, which is my own alternative to the javax.validation package. This module is still work in progress, and complete test cases are provided. It is the main part of the project, and the rest of the modules were built to probe its functionality.
+-   The inspector module, which is my own alternative to the javax.validation package. This module is still work in progress. Complete test cases are provided. It is the main part of the project, and the rest of the modules were built to probe its functionality.
 -   The super market module, which depends on the inspector module. It exposes a set of REST endpoints which are consumed by the web application. Also covers the following features:
     -   Searching.
     -   Sorting.
